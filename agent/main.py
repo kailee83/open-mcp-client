@@ -1,42 +1,43 @@
 import logging
-import os
-from fastapi import FastAPI, Request, HTTPException, Depends
-from pydantic import BaseModel
-from fastapi.responses import StreamingResponse
 import asyncio
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
-# Configuration des logs
+# Configuration du logging
 logging.basicConfig(level=logging.INFO)
 
 # Création de l'application FastAPI
 app = FastAPI()
 
-# Modèle Pydantic pour la commande
+# Modèle de la requête pour /command
 class CommandRequest(BaseModel):
     command: str
 
-# Endpoint pour tester la connexion
+# Route GET de test
 @app.get("/")
 def read_root():
     return {"message": "Hello from MCP Agent"}
 
-# Endpoint /command qui accepte une commande en POST
+# Route POST pour recevoir des commandes
 @app.post("/command")
 async def handle_command(request: CommandRequest):
     logging.info(f"Commande reçue : {request.command}")
     cmd = request.command
 
-    # Traitement de la commande
-    if cmd == "status":
-        return {"message": "Commande 'status' exécutée avec succès", "status": "ok"}
+    # Traitement de commandes fictives
+    if cmd == "start":
+        return {"status": "success", "message": "Commande start exécutée"}
+    elif cmd == "stop":
+        return {"status": "success", "message": "Commande stop exécutée"}
     else:
-        return {"message": f"Commande '{cmd}' non reconnue", "status": "error"}
+        return {"status": "error", "message": "Commande inconnue"}
 
-# Endpoint /call pour simuler l'appel d'un module
+# Route POST générique pour appeler un module/méthode
 @app.post("/call")
 async def call(request: Request):
     try:
-        logging.info("Requête reçue")
+        logging.info("Requête reçue sur /call")
         data = await request.json()
         logging.info(f"Données reçues : {data}")
 
@@ -44,7 +45,6 @@ async def call(request: Request):
         method = data.get("method")
         args = data.get("args")
 
-        # Exemple de gestion de l'appel au module gmail
         if module == "gmail" and method == "run":
             return {"status": "success", "message": "Gmail module executed", "data": args}
 
@@ -54,7 +54,7 @@ async def call(request: Request):
         logging.error(f"Erreur: {str(e)}")
         return {"error": "Internal Server Error"}
 
-# Endpoint SSE pour envoyer des événements
+# Route GET pour le SSE (streaming)
 @app.get("/sse")
 async def sse():
     async def event_generator():
@@ -63,9 +63,7 @@ async def sse():
             await asyncio.sleep(1)
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
-# Lancement de l'application avec le port dynamique
+# Démarrage du serveur (à utiliser uniquement en local)
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # Utilise le port spécifié par Render
-    logging.info(f"Lancement du serveur sur le port {port}")
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
