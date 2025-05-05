@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "start",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:{{$env.MCP_SSE_PORT}}/mcp/data",
+        "method": "GET",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.MCP_AUTH_TOKEN}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "httpRequest",
+      "name": "Get MCP Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [\n  {\n    json: {\n      message: \"Requête réussie\",\n      données: items[0].json\n    }\n  }\n];"
+      },
+      "id": "logResult",
+      "name": "Afficher résultat",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Get MCP Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get MCP Data": {
+      "main": [
+        [
+          {
+            "node": "Afficher résultat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
