@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: open-mcp-client
+    env: python
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -e .
+    startCommand: python app.py
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: PORT
+        value: "8080"
+      - key: PYTHONUNBUFFERED
+        value: "1"

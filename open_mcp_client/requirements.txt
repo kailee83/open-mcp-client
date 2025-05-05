@@ -1,0 +1,8 @@
+# Serveur web
+aiohttp==3.8.6  # Version stable au lieu de 3.11.13 qui a été retirée
+
+# Si vous avez d'autres dépendances pour votre projet, ajoutez-les ici
+# Par exemple:
+# requests==2.31.0
+# pandas==2.1.0
+# numpy==1.26.0
